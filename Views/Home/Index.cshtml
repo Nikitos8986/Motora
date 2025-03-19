@@ -1,0 +1,196 @@
+﻿@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #4a4a4a;
+        }
+
+        /* Блок с заголовком */
+        .hero {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            color: #fff;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            padding: 0 20px;
+        }
+
+            .hero h1 {
+                font-size: 3.5rem;
+                font-weight: 700;
+                margin: 0;
+                color: #fff;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+                margin-top: 15px;
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+                color: #ecf0f1;
+            }
+
+        .cta-btn {
+            background-color: #3498db;
+            padding: 12px 30px;
+            color: white;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+            .cta-btn:hover {
+                background-color: #2980b9;
+                transform: scale(1.1);
+            }
+
+        /* Контейнер с разделами */
+        .section {
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+            .section h2 {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+                color: #34495e;
+            }
+
+            .section p {
+                font-size: 1.1rem;
+                color: #7f8c8d;
+                margin-bottom: 30px;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+        .card {
+            border: none;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+            }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .card-text {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+
+        .card-deck {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        /* Анимации */
+        .animate {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero animate">
+        <div>
+            <h1>Присоединяйтесь к лучшему автосалону</h1>
+            <p>Откройте для себя автомобили с отличным качеством и невероятным обслуживанием. Читайте отзывы и делайте правильный выбор!</p>
+            <a href="#" class="cta-btn" id="startBtn">Начать</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Раздел с отзывами -->
+        <div class="section">
+            <h2>Отзывы наших клиентов</h2>
+            <p>Наши клиенты доверяют нам. Узнайте, что они говорят о нашем сервисе и автомобилях.</p>
+            <a href="/discussion/allreviews" class="cta-btn">Читать все отзывы</a>
+        </div>
+
+        <!-- Раздел с оценками -->
+        <div class="section" style="background-color: #ecf0f1;">
+            <h2>Как мы оцениваем автомобили</h2>
+            <p>Каждый автомобиль проходит тщательную проверку и оценку, чтобы гарантировать вам качественный выбор.</p>
+            <a href="home/howwerate" class="cta-btn">Узнать больше</a>
+        </div>
+
+        <!-- Контактная информация -->
+        <div class="section">
+            <h2>Свяжитесь с нами</h2>
+            <p>Мы всегда на связи и готовы помочь вам выбрать автомобиль вашей мечты. Напишите нам, и мы ответим в кратчайшие сроки!</p>
+            <a href="#" class="cta-btn" data-bs-toggle="modal" data-bs-target="#contactModal">Контакты</a>
+        </div>
+
+        <!-- Модальное окно с контактами -->
+        <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="contactModalLabel">Наши контакты</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><i class="bi bi-telephone-fill"></i> Телефон: +7 (123) 456-78-90</p>
+                        <p><i class="bi bi-envelope-fill"></i> Email: info@autodealer.ru</p>
+                        <p><i class="bi bi-geo-alt-fill"></i> Адрес: Москва, ул. Примерная, 10</p>
+                        <p><i class="bi bi-clock-fill"></i> Часы работы: Пн-Пт 9:00 - 19:00, Сб-Вс 10:00 - 17:00</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById("startBtn").addEventListener("click", function (event) {
+            event.preventDefault();
+            document.querySelector(".section").scrollIntoView({
+                behavior: "smooth"
+            });
+        });
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

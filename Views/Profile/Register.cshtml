@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = "Регистрация";
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Войти или зарегистрироваться</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container-login {
+            max-width: 800px;
+            padding: 3rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5% auto;
+        }
+
+        .form-section {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(90deg, #1976D2, #42A5F5);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #42A5F5;
+                box-shadow: 0 0 8px rgba(66, 165, 245, 0.4);
+            }
+
+        .text-danger {
+            color: red;
+            font-size: 0.9rem;
+        }
+
+        .btn-custom {
+            background: linear-gradient(90deg, #1976D2, #42A5F5);
+            color: #fff;
+            border: 2px solid white;
+            border-radius: 20px;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-custom:hover {
+                background: linear-gradient(90deg, #42A5F5, #1976D2);
+                transform: scale(1.05);
+            }
+
+            .btn-custom:active {
+                transform: scale(0.98);
+            }
+
+        .btn-link {
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+            font-size: 1rem;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+        }
+
+            .btn-link:hover {
+                color: wheat;
+                text-decoration: underline;
+            }
+    </style>
+</head>
+<body>
+    <div class="container-login">
+        <div class="form-section">
+            <h3><strong style="color: white">Регистрация нового аккаунта</strong></h3>
+            <hr style="color: white" />
+
+            <form method="post" asp-controller="profile" asp-action="register">
+                <div class="mb-3">
+                    <label for="your_name" class="form-label">Как к вам обращаться? </label>
+                    <input id="your_name" name="your_name" class="form-control" placeholder="Введите имя/никнейм" required>
+                    <span class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">E-mail: </label>
+                    <input id="email" name="email" class="form-control" placeholder="Введите email" required>
+                    <span class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Пароль: </label>
+                    <input id="password" name="password" type="password" class="form-control" placeholder="Введите пароль" required>
+                    <span class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn-custom">Зарегистрироваться</button>
+            </form>
+
+            <a href="/profile/login" class="btn-link" style="text-decoration: none;">Войти</a>
+        </div>
+    </div>
+</body>
+</html>

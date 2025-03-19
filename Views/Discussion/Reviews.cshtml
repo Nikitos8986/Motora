@@ -1,0 +1,226 @@
+﻿@inject IHttpContextAccessor Users
+
+@{
+    ViewData["Title"] = "Отзывы";
+
+    var user = Users.HttpContext.Session.GetString("Email");
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Подключение Bootstrap для удобного оформления -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #0D47A1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 40px;
+        }
+
+        .form-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+            .form-section h3 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+        .form-control {
+            margin-bottom: 20px;
+        }
+
+        .category-select {
+            margin-bottom: 15px;
+        }
+
+        .rating-stars .fa {
+            color: #ccc; /* Серые звезды по умолчанию */
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+            .rating-stars .fa.checked {
+                color: #FFD700; /* Желтые звезды при выборе */
+            }
+
+
+        .btn-custom {
+            background: linear-gradient(45deg, #1976D2, #42A5F5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+            .btn-custom:hover {
+                background: linear-gradient(45deg, #42A5F5, #1976D2);
+            }
+
+        .char-count {
+            font-size: 0.9rem;
+            color: #888;
+            text-align: right;
+        }
+
+        .drafts {
+            margin-top: 40px;
+        }
+
+            .drafts h5 {
+                margin-bottom: 15px;
+                font-weight: bold;
+            }
+
+        .draft-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Форма добавления отзыва -->
+        <div class="form-section">
+            <h3>Добавить отзыв</h3>
+            <form method="post" asp-action="reviews" asp-controller="discussion">
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Заголовок отзыва *</label>
+                    <input name="title" type="text" class="form-control" id="title" placeholder="Введите заголовок" required maxlength="100">
+                </div>
+
+                <div class="mb-3">
+                    <label for="reviewText" class="form-label">Текст отзыва *</label>
+                    <textarea name="text" class="form-control" id="reviewText" rows="5" placeholder="Опишите ваш опыт..." required maxlength="500"></textarea>
+                    <div id="charCount" class="char-count">0 / 500</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Категория отзыва *</label>
+                    <select class="form-select category-select" id="category" required>
+                        <option value="service">Обслуживание</option>
+                        <option value="prices">Цены</option>
+                        <option value="quality">Качество авто</option>
+                    </select>
+                </div>
+
+                <input type="hidden" id="hiddenCategory" name="category">
+
+
+                <!-- Рейтинг в виде звезд -->
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Оценка *</label>
+                    <div id="rating" class="rating-stars">
+                        <i class="fa fa-star" data-value="1"></i>
+                        <i class="fa fa-star" data-value="2"></i>
+                        <i class="fa fa-star" data-value="3"></i>
+                        <i class="fa fa-star" data-value="4"></i>
+                        <i class="fa fa-star" data-value="5"></i>
+                    </div>
+                    <input type="hidden" id="ratingInput" name="estimation" value="0" />
+                </div>
+
+                <!-- Приватность отзыва -->
+                <div class="mb-3">
+                    <label for="privates" class="form-label">Сделать отзыв приватным?</label>
+                    <input type="checkbox" id="privates" />
+                    <input type="hidden" id="hiddenPrivates" name="privates" value="true" />
+                </div>
+
+                <button type="submit" class="btn-custom">Отправить отзыв</button>
+            </form>
+        </div>
+
+		         
+            <!-- Черновики -->
+        <div class="drafts">
+           @*  <h5>Ваши черновики</h5>
+          @if (Model.Drafts != null && Model.Drafts.Any())
+            {
+                foreach (var draft in Model.Drafts)
+                {
+                    <div class="draft-card">
+                        <h6>@draft.Title</h6>
+                        <p>@draft.ReviewText.Substring(0, 100)...</p>
+                        <a href="@Url.Page("/Discussion/EditReview", new { id = draft.Id })" class="btn btn-primary btn-sm">Редактировать</a>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Черновиков нет.</p>
+            }  *@
+        </div>
+       
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Отслеживание количества символов в тексте отзыва
+        const reviewTextArea = document.getElementById('reviewText');
+        const charCount = document.getElementById('charCount');
+
+        reviewTextArea.addEventListener('input', function() {
+            const currentLength = reviewTextArea.value.length;
+            charCount.textContent = `${currentLength} / 500`;
+        });
+
+        // Управление звездочками рейтинга
+        const stars = document.querySelectorAll('#rating i');
+        const ratingInput = document.getElementById('ratingInput');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const ratingValue = this.getAttribute('data-value');
+                ratingInput.value = ratingValue;
+
+                // Обновляем цвет звездочек в соответствии с выбранным рейтингом
+                stars.forEach(s => s.classList.remove('checked'));
+                for (let i = 0; i < ratingValue; i++) {
+                    stars[i].classList.add('checked');
+                }
+            });
+        });
+    </script>
+
+<script>
+    // Функция для обновления скрытого input
+    function updateHiddenCategory() {
+        document.getElementById("hiddenCategory").value = document.getElementById("category").value;
+    }
+
+    // Устанавливаем значение при загрузке страницы
+    document.addEventListener("DOMContentLoaded", updateHiddenCategory);
+
+    // Обновляем значение при изменении выбора
+    document.getElementById("category").addEventListener("change", updateHiddenCategory);
+</script>
+
+    <script>
+        document.getElementById('privates').addEventListener('change', function () {
+            document.getElementById('hiddenPrivates').value = this.checked ? "true" : "false";
+        });
+    </script>
+</body>
+</html>

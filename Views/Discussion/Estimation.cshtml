@@ -1,0 +1,168 @@
+﻿@{
+    ViewData["Title"] = "Оценки автосалона";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #0D47A1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin-top: 40px;
+        }
+
+        .form-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .rating-stars .fa {
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            font-size: 25px;
+        }
+
+            .rating-stars .fa.checked {
+                color: #FFD700;
+            }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #1976D2, #42A5F5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+            .btn-custom:hover {
+                background: linear-gradient(45deg, #42A5F5, #1976D2);
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="text-center">Оценки автосалона</h2>
+
+        <!-- Форма оценки -->
+        <div class="form-section">
+            <h4>Оставить оценку</h4>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Категория *</label>
+                    <select class="form-select" id="category" name="Category" required>
+                        <option value="service">Сервис</option>
+                        <option value="prices">Цены</option>
+                        <option value="staff">Персонал</option>
+                    </select>
+                </div>
+
+                <!-- Выбор типа оценки -->
+                <div class="mb-3">
+                    <label class="form-label">Тип оценки *</label>
+                    <select class="form-select" id="ratingType" required>
+                        <option value="stars">5 звезд</option>
+                        <option value="points">1-10 баллов</option>
+                    </select>
+                </div>
+
+                <!-- Рейтинг (звезды) -->
+                <div id="starRating" class="mb-3 rating-stars">
+                    <i class="fa fa-star" data-value="1"></i>
+                    <i class="fa fa-star" data-value="2"></i>
+                    <i class="fa fa-star" data-value="3"></i>
+                    <i class="fa fa-star" data-value="4"></i>
+                    <i class="fa fa-star" data-value="5"></i>
+                </div>
+
+                <!-- Рейтинг (баллы 1-10) -->
+                <div id="pointRating" class="mb-3" style="display: none;">
+                    <input type="number" class="form-control" id="pointsInput" name="Points" min="1" max="10" placeholder="Оцените от 1 до 10">
+                </div>
+
+                <input type="hidden" id="ratingInput" name="Rating" value="0" />
+
+                <button type="submit" class="btn-custom">Отправить оценку</button>
+            </form>
+        </div>
+
+        <!-- Гистограмма оценок -->
+        <div class="form-section">
+            <h4>Статистика оценок</h4>
+            <canvas id="ratingsChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const stars = document.querySelectorAll("#starRating i");
+            const ratingInput = document.getElementById("ratingInput");
+            const ratingType = document.getElementById("ratingType");
+            const starRating = document.getElementById("starRating");
+            const pointRating = document.getElementById("pointRating");
+
+            stars.forEach((star, index) => {
+                star.addEventListener("click", function () {
+                    let ratingValue = index + 1;
+                    ratingInput.value = ratingValue;
+                    stars.forEach((s, i) => s.classList.toggle("checked", i < ratingValue));
+                });
+            });
+
+            ratingType.addEventListener("change", function () {
+                if (ratingType.value === "stars") {
+                    starRating.style.display = "block";
+                    pointRating.style.display = "none";
+                    ratingInput.value = "0";
+                } else {
+                    starRating.style.display = "none";
+                    pointRating.style.display = "block";
+                    ratingInput.value = "0";
+                }
+            });
+
+            // Демо-данные для гистограммы
+            const ctx = document.getElementById("ratingsChart").getContext("2d");
+            const ratingsChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: ["Сервис", "Цены", "Персонал"],
+                    datasets: [{
+                        label: "Средняя оценка",
+                        data: [4.2, 3.8, 4.5], // Эти данные можно обновлять из БД
+                        backgroundColor: ["#42A5F5", "#FFA726", "#66BB6A"]
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
