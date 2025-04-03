@@ -60,6 +60,22 @@
     </style>
 </head>
 <body>
+    <!-- Сообщения об успехе/ошибке -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="container">
         <h2 class="text-center">Оценки автосалона</h2>
@@ -67,26 +83,26 @@
         <!-- Форма оценки -->
         <div class="form-section">
             <h4>Оставить оценку</h4>
-            <form method="post">
+            <form asp-action="estimation" asp-controller="discussion" method="post">
                 <div class="mb-3">
                     <label class="form-label">Категория *</label>
-                    <select class="form-select" id="category" name="Category" required>
+                    <select class="form-select" id="category" name="category" required>
                         <option value="service">Сервис</option>
                         <option value="prices">Цены</option>
                         <option value="staff">Персонал</option>
                     </select>
+                    <input type="hidden" id="hiddenCategory" name="hiddenCategory" value="service">
                 </div>
 
-                <!-- Выбор типа оценки -->
                 <div class="mb-3">
                     <label class="form-label">Тип оценки *</label>
-                    <select class="form-select" id="ratingType" required>
+                    <select class="form-select" id="ratingType" name="type" required>
                         <option value="stars">5 звезд</option>
                         <option value="points">1-10 баллов</option>
                     </select>
+                    <input type="hidden" id="hiddenRatingType" name="hiddenRatingType" value="stars">
                 </div>
 
-                <!-- Рейтинг (звезды) -->
                 <div id="starRating" class="mb-3 rating-stars">
                     <i class="fa fa-star" data-value="1"></i>
                     <i class="fa fa-star" data-value="2"></i>
@@ -95,15 +111,21 @@
                     <i class="fa fa-star" data-value="5"></i>
                 </div>
 
-                <!-- Рейтинг (баллы 1-10) -->
                 <div id="pointRating" class="mb-3" style="display: none;">
-                    <input type="number" class="form-control" id="pointsInput" name="Points" min="1" max="10" placeholder="Оцените от 1 до 10">
+                    <input type="number" class="form-control" id="pointsInput" name="estimation" min="1" max="10" placeholder="Оцените от 1 до 10">
                 </div>
 
-                <input type="hidden" id="ratingInput" name="Rating" value="0" />
+                <input type="hidden" id="hiddenEstimation" name="hiddenEstimation" value="">
+
+                <div class="mb-3">
+                    <label class="form-label">Причина оценки (опционально)</label>
+                    <textarea class="form-control" id="reason" name="reason" rows="1" maxlength="25"></textarea>
+                    <input type="hidden" id="hiddenReason" name="hiddenReason" value="">
+                </div>
 
                 <button type="submit" class="btn-custom">Отправить оценку</button>
             </form>
+
         </div>
 
         <!-- Гистограмма оценок -->
@@ -114,52 +136,67 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+               document.addEventListener("DOMContentLoaded", function () {
             const stars = document.querySelectorAll("#starRating i");
-            const ratingInput = document.getElementById("ratingInput");
             const ratingType = document.getElementById("ratingType");
             const starRating = document.getElementById("starRating");
             const pointRating = document.getElementById("pointRating");
+            const pointsInput = document.getElementById("pointsInput");
+            const categorySelect = document.getElementById("category");
+            const reasonInput = document.getElementById("reason");
 
+            // Скрытые поля
+            const hiddenCategory = document.getElementById("hiddenCategory");
+            const hiddenRatingType = document.getElementById("hiddenRatingType");
+            const hiddenEstimation = document.getElementById("hiddenEstimation");
+            const hiddenReason = document.getElementById("hiddenReason");
+
+            // Обновление скрытых полей при изменении данных
+            categorySelect.addEventListener("change", function () {
+                hiddenCategory.value = categorySelect.value;
+            });
+
+            ratingType.addEventListener("change", function () {
+                hiddenRatingType.value = ratingType.value;
+                if (ratingType.value === "stars") {
+                    starRating.style.display = "block";
+                    pointRating.style.display = "none";
+                    hiddenEstimation.value = "0"; // Сброс оценки
+                } else {
+                    starRating.style.display = "none";
+                    pointRating.style.display = "block";
+                    hiddenEstimation.value = ""; // Очищаем для ввода нового
+                }
+            });
+
+            pointsInput.addEventListener("input", function () {
+                hiddenEstimation.value = pointsInput.value;
+            });
+
+            reasonInput.addEventListener("input", function () {
+                hiddenReason.value = reasonInput.value;
+            });
+
+            // Обновление оценки при выборе звезд
             stars.forEach((star, index) => {
                 star.addEventListener("click", function () {
                     let ratingValue = index + 1;
-                    ratingInput.value = ratingValue;
+                    hiddenEstimation.value = ratingValue;
                     stars.forEach((s, i) => s.classList.toggle("checked", i < ratingValue));
                 });
             });
 
-            ratingType.addEventListener("change", function () {
-                if (ratingType.value === "stars") {
-                    starRating.style.display = "block";
-                    pointRating.style.display = "none";
-                    ratingInput.value = "0";
+            // Проверка перед отправкой формы
+            document.querySelector("form").addEventListener("submit", function (event) {
+                if (hiddenEstimation.value === "0" || hiddenEstimation.value === "") {
+                    alert("Пожалуйста, выберите оценку!");
+                    event.preventDefault();
                 } else {
-                    starRating.style.display = "none";
-                    pointRating.style.display = "block";
-                    ratingInput.value = "0";
-                }
-            });
-
-            // Демо-данные для гистограммы
-            const ctx = document.getElementById("ratingsChart").getContext("2d");
-            const ratingsChart = new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: ["Сервис", "Цены", "Персонал"],
-                    datasets: [{
-                        label: "Средняя оценка",
-                        data: [4.2, 3.8, 4.5], // Эти данные можно обновлять из БД
-                        backgroundColor: ["#42A5F5", "#FFA726", "#66BB6A"]
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 5
-                        }
-                    }
+                    console.log("Отправляем данные:");
+                    console.log("Категория:", hiddenCategory.value);
+                    console.log("Тип оценки:", hiddenRatingType.value);
+                    console.log("Оценка:", hiddenEstimation.value);
+                    console.log("Причина:", hiddenReason.value);
                 }
             });
         });

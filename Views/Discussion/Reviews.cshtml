@@ -79,26 +79,25 @@
             color: #888;
             text-align: right;
         }
-
-        .drafts {
-            margin-top: 40px;
-        }
-
-            .drafts h5 {
-                margin-bottom: 15px;
-                font-weight: bold;
-            }
-
-        .draft-card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
+    <!-- Сообщения об успехе/ошибке -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     <div class="container">
         <!-- Форма добавления отзыва -->
         <div class="form-section">
@@ -145,33 +144,13 @@
                 <div class="mb-3">
                     <label for="privates" class="form-label">Сделать отзыв приватным?</label>
                     <input type="checkbox" id="privates" />
-                    <input type="hidden" id="hiddenPrivates" name="privates" value="true" />
+                    <input type="hidden" id="hiddenPrivates" name="hiddenPrivates" value="false" />
                 </div>
 
                 <button type="submit" class="btn-custom">Отправить отзыв</button>
             </form>
         </div>
-
-		         
-            <!-- Черновики -->
-        <div class="drafts">
-           @*  <h5>Ваши черновики</h5>
-          @if (Model.Drafts != null && Model.Drafts.Any())
-            {
-                foreach (var draft in Model.Drafts)
-                {
-                    <div class="draft-card">
-                        <h6>@draft.Title</h6>
-                        <p>@draft.ReviewText.Substring(0, 100)...</p>
-                        <a href="@Url.Page("/Discussion/EditReview", new { id = draft.Id })" class="btn btn-primary btn-sm">Редактировать</a>
-                    </div>
-                }
-            }
-            else
-            {
-                <p>Черновиков нет.</p>
-            }  *@
-        </div>
+        <hr/>
        
     </div>
 

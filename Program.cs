@@ -18,11 +18,8 @@ internal class Program
 
         builder.Services.AddScoped<AccountService>();
         builder.Services.AddScoped<ReviewsService>();
+        builder.Services.AddScoped<EstimationService>();
 
-
-
-
-        // ����������� ������
         builder.Services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -34,11 +31,10 @@ internal class Program
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
-                options.LoginPath = "/account/login"; // ���� � �������� �����
-                options.LogoutPath = "/account/logout"; // ���� � �������� ������
+                options.LoginPath = "/account/login"; 
+                options.LogoutPath = "/account/logout"; 
             });
 
-        // ����������� HttpContextAccessor ��� ������� � �������� ���������
         builder.Services.AddHttpContextAccessor();
 
         var app = builder.Build();
@@ -58,9 +54,7 @@ internal class Program
         app.UseAuthentication(); 
         app.UseAuthorization(); 
 
-
         app.MapDefaultControllerRoute();
-
 
         app.UseDeveloperExceptionPage();
 

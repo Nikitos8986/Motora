@@ -1,5 +1,361 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<Reviews>
+
 @{
+    ViewData["Title"] = "Отзывы";
 }
+
+<h2 class="text-center mt-4 mb-4 text-primary fw-bold">Отзывы клиентов</h2>
+
+<!-- Фильтры -->
+<div class="container mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div class="filter-buttons">
+            <button class="btn btn-outline-primary filter-btn active" data-category="all">Все</button>
+            <button class="btn btn-outline-primary filter-btn" data-category="prices">Цены</button>
+            <button class="btn btn-outline-primary filter-btn" data-category="service">Обслуживание</button>
+            <button class="btn btn-outline-primary filter-btn" data-category="quality">Качество авто</button>
+        </div>
+
+        <select class="form-select w-auto" id="ratingFilter">
+            <option value="all">Все рейтинги</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+    </div>
+</div>
+
+<!-- Карточки отзывов -->
+<div class="container">
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <p class="text-center text-muted mt-4 fw-bold fs-4 opacity-75">
+                <i class="fas fa-comment-slash me-2"></i> Отзывов нет
+            </p>
+        }
+        else
+        {
+            <div class="container">
+                <div class="row">
+                    @foreach (var review in Model)
+                    {
+                        <div class="col-md-6 col-lg-4 mb-4 review-item" data-category="@review.category" data-rating="@review.estimation">
+                            <div class="card review-card shadow border-0" onclick="openModal('@review.title', '@(review.privates ? "Аноним" : $"{review.User?.your_name}")', '@review.text', '@review.category', '@review.estimation')">
+                                <div class="card-body">
+                                    <h4 class="card-title title-gradient fw-bold">@review.title</h4>
+                                    <h6 class="card-subtitle mb-2 text-muted user-gradient">
+                                        @(review.privates ? "Аноним" : review.User?.your_name)
+                                    </h6>
+                                    <p class="card-text text-dark">
+                                        @review.text.Substring(0, Math.Min(100, review.text.Length))...
+                                    </p>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <span class="badge category-badge">
+                                            <i class="@GetCategoryIcon(review.category) me-1"></i> @GetCategoryName(review.category)
+                                        </span>
+                                        <div class="rating">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                if (i < int.Parse(review.estimation))
+                                                {
+                                                    <span class="star rated">★</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="star unrated">★</span>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+<!-- Модальное окно -->
+<div id="reviewModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h4 id="modalTitle"></h4>
+        <h6 id="modalUser" class="text-muted"></h6>
+        <p id="modalText"></p>
+        <span class="badge category-badge" id="modalCategory"></span>
+        <div class="rating mt-2" id="modalRating"></div>
+    </div>
+</div>
+
+@functions {
+    public string GetCategoryName(string category)
+    {
+        return category switch
+        {
+            "prices" => "Ценообразование",
+            "service" => "Обслуживание",
+            "quality" => "Качество авто",
+            _ => "Другое"
+        };
+    }
+
+    public string GetCategoryIcon(string category)
+    {
+        return category switch
+        {
+            "prices" => "fas fa-dollar-sign",
+            "service" => "fas fa-headset",
+            "quality" => "fas fa-car",
+            _ => "fas fa-tag"
+        };
+    }
+}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .review-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+        padding: 24px;
+        border-radius: 16px;
+        transition: all 0.3s ease-in-out;
+        border: 1px solid rgba(0, 123, 255, 0.2);
+        max-width: 360px;
+        margin: auto;
+        cursor: pointer;
+    }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 123, 255, 0.5);
+        }
+
+    .star {
+        font-size: 1.4rem;
+    }
+
+    .rated {
+        color: #FFD700;
+    }
+
+    .unrated {
+        color: #ddd;
+    }
+
+    .rating {
+        display: flex;
+        gap: 4px;
+    }
+
+    .category-badge {
+        background-color: #007bff;
+        color: white;
+        font-size: 0.9rem;
+        padding: 7px 12px;
+        border-radius: 15px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+
+    .title-gradient {
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-gradient {
+        background: linear-gradient(90deg, #555, #333);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .text-primary {
+        font-weight: bold;
+        font-size: 1.8rem;
+    }
+
+    /* Стили для модального окна */
+    /* Затемненный фон с размытием */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    /* Основной контейнер модального окна */
+    .modal-content {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        animation: scaleUp 0.3s ease-in-out;
+    }
+
+    /* Заголовок */
+    .modal-header h4 {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: bold;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Кнопка закрытия */
+    .close {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .close:hover {
+            transform: scale(1.2);
+            color: #ff4d4d;
+        }
+
+    /* Тело модального окна */
+    .modal-body p {
+        font-size: 1.1rem;
+        color: #444;
+        line-height: 1.5;
+        margin-top: 10px;
+    }
+
+    /* Футер с рейтингом */
+    .modal-footer {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Стили звезд */
+    .rating {
+        font-size: 1.5rem;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const ratingFilter = document.getElementById("ratingFilter");
+        const reviewItems = document.querySelectorAll(".review-item");
+
+        filterButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                let category = this.getAttribute("data-category");
+                filterButtons.forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+                filterReviews(category, ratingFilter.value);
+            });
+        });
+
+        ratingFilter.addEventListener("change", function () {
+            let selectedRating = this.value;
+            let activeCategory = document.querySelector(".filter-btn.active").getAttribute("data-category");
+            filterReviews(activeCategory, selectedRating);
+        });
+
+    function filterReviews(category, rating) {
+        let visibleCount = 0;
+
+        reviewItems.forEach(item => {
+            let itemCategory = item.getAttribute("data-category");
+            let itemRating = item.getAttribute("data-rating");
+
+            let categoryMatch = (category === "all" || itemCategory === category);
+            let ratingMatch = (rating === "all" || itemRating === rating);
+
+            if (categoryMatch && ratingMatch) {
+                item.style.display = "block";
+                visibleCount++;
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+    });
+
+    function openModal(title, user, text, category, rating) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalUser').innerText = user;
+        document.getElementById('modalText').innerText = text;
+
+        // Устанавливаем текст категории
+        let categoryBadge = document.getElementById('modalCategory');
+        categoryBadge.innerText = getCategoryName(category);
+        categoryBadge.className = "badge category-badge " + getCategoryIcon(category);
+
+        // Устанавливаем рейтинг
+        let ratingContainer = document.getElementById('modalRating');
+        ratingContainer.innerHTML = ""; // Очищаем старый рейтинг
+
+        for (let i = 0; i < 5; i++) {
+            let star = document.createElement("span");
+            star.classList.add("star");
+            if (i < parseInt(rating)) {
+                star.classList.add("rated");
+                star.innerText = "★";
+            } else {
+                star.classList.add("unrated");
+                star.innerText = "★";
+            }
+            ratingContainer.appendChild(star);
+        }
+
+        document.getElementById('reviewModal').style.display = "flex";
+    }
+
+    // Функция для получения названия категории
+    function getCategoryName(category) {
+        switch (category) {
+            case "prices": return "Ценообразование";
+            case "service": return "Обслуживание";
+            case "quality": return "Качество авто";
+            default: return "Другое";
+        }
+    }
+
+    // Функция для получения CSS класса иконки
+    function getCategoryIcon(category) {
+        switch (category) {
+            case "prices": return "fas fa-dollar-sign";
+            case "service": return "fas fa-headset";
+            case "quality": return "fas fa-car";
+            default: return "fas fa-tag";
+        }
+    }
+    function closeModal() {
+        document.getElementById('reviewModal').style.display = "none";
+    }
+</script>

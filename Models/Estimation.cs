@@ -1,19 +1,17 @@
 ﻿using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
-[Table("reviews")]
-public class Reviews : BaseModel
+[Table("estimation")]
+public class Estimation : BaseModel
 {
     internal User? User;
 
     [PrimaryKey("id", false)]
     public int id { get; set; }
     public int? user_id { get; set; }
-    public string title { get; set; }
-    public string text { get; set; }
-    public string category { get; set; }
     public string estimation { get; set; }
-    public bool privates { get; set; }
-
+    public string type { get; set; }
+    public string category { get; set; }
+    public string reason { get; set; }
 
 }

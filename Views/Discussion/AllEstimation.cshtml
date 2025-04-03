@@ -1,5 +1,303 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<Estimation>
+
 @{
+    ViewData["Title"] = "Оценки";
 }
+
+<h2 class="text-center mt-4 mb-4 text-primary fw-bold">Оценки клиентов</h2>
+
+<!-- Фильтры -->
+<div class="container mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div class="filter-buttons">
+            <button class="btn btn-outline-primary filter-btn active" data-category="all">Все</button>
+            <button class="btn btn-outline-primary filter-btn" data-category="prices">Цены</button>
+            <button class="btn btn-outline-primary filter-btn" data-category="service">Обслуживание</button>
+            <button class="btn btn-outline-primary filter-btn" data-category="personal">Персонал</button>
+        </div>
+
+        <select class="form-select w-auto" id="typeFilter">
+            <option value="all">Все системы</option>
+            <option value="points">10-бальная</option>
+            <option value="stars">5-бальная</option>
+        </select>
+
+        <!-- Фильтр для 10-бальной системы -->
+        <select class="form-select w-auto ratingFilter" id="pointsFilter">
+            <option value="all">Все оценки (10-балльная)</option>
+            @for (int i = 10; i >= 1; i--)
+            {
+                <option value="@i">@i</option>
+            }
+        </select>
+
+        <!-- Фильтр для 5-бальной системы -->
+        <select class="form-select w-auto ratingFilter" id="starsFilter">
+            <option value="all">Все оценки (5-балльная)</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+    </div>
+</div>
+
+<!-- Карточки оценок -->
+<div class="container">
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <p class="text-center text-muted mt-4 fw-bold fs-4 opacity-75">
+                <i class="fas fa-comment-slash me-2"></i> Оценок нет
+            </p>
+        }
+        else
+        {
+            @foreach (var review in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4 review-item"
+                     data-category="@review.category"
+                     data-rating="@review.estimation"
+                     data-type="@review.type">
+                    <div class="card review-card shadow border-0">
+                        <div class="card-body text-center">
+
+                            <!-- Имя пользователя -->
+                            <h5 class="user-name text-primary fw-bold mb-3">
+                                <i class="fas fa-user-circle me-1"></i> @(review.User?.your_name)
+                            </h5>
+
+                            <!-- Категория -->
+                            <span class="category-badge mb-3 d-inline-block">
+                                <i class="@GetCategoryIcon(review.category) me-1"></i> @GetCategoryName(review.category)
+                            </span>
+
+                            <hr class="divider" />
+
+                            <!-- Оценка -->
+                            <div class="rating">
+                                <span class="rating-label">Оценка:</span>
+                                @if (review.type == "stars")
+                                {
+                                    <div class="stars-container">
+                                        @for (int i = 0; i < 5; i++)
+                                        {
+                                            if (i < int.Parse(review.estimation))
+                                            {
+                                                <span class="star rated">★</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="star unrated">★</span>
+                                            }
+                                        }
+                                    </div>
+                                }
+                                else if (review.type == "points")
+                                {
+                                    <span class="fw-bold fs-2 points-rating">@review.estimation/10</span>
+                                }
+                            </div>
+
+                            <hr class="divider" />
+
+                            <!-- Причина -->
+                            <div class="reason-box">
+                                <span class="fw-bold">Причина:</span> @review.reason
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @functions {
+        public string GetCategoryName(string category)
+        {
+            return category switch
+            {
+                "prices" => "Ценообразование",
+                "service" => "Обслуживание",
+                "personal" => "Персонал",
+                _ => "Другое"
+            };
+        }
+
+        public string GetCategoryIcon(string category)
+        {
+            return category switch
+            {
+                "prices" => "fas fa-dollar-sign",
+                "service" => "fas fa-headset",
+                "personal" => "fas fa-user",
+                _ => "fas fa-tag"
+            };
+        }
+    }
+
+    <style>
+        /* --- Общие стили --- */
+        .review-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            padding: 20px;
+            border-radius: 12px;
+            transition: 0.3s ease-in-out;
+            border: 1px solid rgba(0, 123, 255, 0.2);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 380px;
+            margin: auto;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+            .review-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+            }
+
+        /* --- Имя пользователя --- */
+        .user-name {
+            font-size: 1.4rem;
+            color: #007bff;
+        }
+
+        /* --- Категория оценки --- */
+        .category-badge {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        /* --- Разделитель --- */
+        .divider {
+            border: none;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+
+        /* --- Рейтинг (звезды и 10-балльная система) --- */
+        .rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.2rem;
+        }
+
+        .rating-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stars-container {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .star {
+            font-size: 1.8rem;
+            transition: 0.3s;
+        }
+
+        .rated {
+            color: #FFD700;
+        }
+
+        .unrated {
+            color: #ddd;
+        }
+
+        /* --- 10-балльный рейтинг --- */
+        .points-rating {
+            color: #007bff;
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-shadow: 0px 3px 6px rgba(0, 123, 255, 0.2);
+        }
+
+        /* --- Блок причины --- */
+        .reason-box {
+            background: rgba(0, 123, 255, 0.1);
+            border-left: 4px solid #007bff;
+            padding: 10px 12px;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 1rem;
+            color: #333;
+        }
+
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterButtons = document.querySelectorAll(".filter-btn");
+            const typeFilter = document.getElementById("typeFilter");
+            const pointsFilter = document.getElementById("pointsFilter");
+            const starsFilter = document.getElementById("starsFilter");
+            const reviewItems = document.querySelectorAll(".review-item");
+
+            // Показываем/скрываем соответствующий рейтинг-фильтр
+            function toggleRatingFilters() {
+                const selectedType = typeFilter.value;
+                if (selectedType === "points") {
+                    pointsFilter.style.display = "block";
+                    starsFilter.style.display = "none";
+                } else if (selectedType === "stars") {
+                    pointsFilter.style.display = "none";
+                    starsFilter.style.display = "block";
+                } else {
+                    pointsFilter.style.display = "block";
+                    starsFilter.style.display = "block";
+                }
+            }
+
+            filterButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    filterButtons.forEach(btn => btn.classList.remove("active"));
+                    this.classList.add("active");
+                    filterReviews();
+                });
+            });
+
+            typeFilter.addEventListener("change", function () {
+                toggleRatingFilters();
+                filterReviews();
+            });
+
+            pointsFilter.addEventListener("change", filterReviews);
+            starsFilter.addEventListener("change", filterReviews);
+
+            function filterReviews() {
+                const category = document.querySelector(".filter-btn.active").getAttribute("data-category");
+                const type = typeFilter.value;
+                const pointsRating = pointsFilter.value;
+                const starsRating = starsFilter.value;
+
+                reviewItems.forEach(item => {
+                    let itemCategory = item.getAttribute("data-category");
+                    let itemType = item.getAttribute("data-type");
+                    let itemRating = item.getAttribute("data-rating");
+
+                    let categoryMatch = (category === "all" || itemCategory === category);
+                    let typeMatch = (type === "all" || itemType === type);
+                    let ratingMatch = (pointsRating === "all" && starsRating === "all") ||
+                                     (itemType === "points" && pointsRating === itemRating) ||
+                                     (itemType === "stars" && starsRating === itemRating);
+
+                    item.style.display = (categoryMatch && typeMatch && ratingMatch) ? "block" : "none";
+                });
+            }
+
+            toggleRatingFilters(); // Вызываем при загрузке, чтобы скрыть ненужные фильтры
+        });
+    </script>
+</div>
